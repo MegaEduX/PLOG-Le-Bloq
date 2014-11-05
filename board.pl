@@ -1,39 +1,4 @@
-%
-%	[Utilities] -> writeln
-%
-
-writeln(X) :-
-	write(X),
-	nl.
-
-%
-%	[Utilities] -> Read Integer
-%
-
-readInteger(ReturnValue) :-
-	read(ReturnValue),
-	integer(ReturnValue),
-	!.
-
-readInteger(ReturnValue) :-
-	writeln('An integer was expected, not something else!'),
-	readInteger(ReturnValue).
-
-%
-%	[Utilities] -> Read Yes / No
-%
-
-readYN(y).
-readYN(n).
-
-readYN(X) :- 
-	read(X), 
-	readYN(X), 
-	!.
-
-readYN(X) :- 
-	writeln('You need to choose between "y" and "n".'),
-	readYN(X).
+:- ensure_loaded(['utilities.pl', 'printing.pl', 'lists.pl']).
 
 initialBoard([
 	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
@@ -58,30 +23,14 @@ initialBoard([
 	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ']
 ]).
 
-printBoard([]).
-
-printBoard([FirstRow|OtherRows]) :-
-	printList(FirstRow),
-	printBoard(OtherRows).
-	
 %
-%	The function below is required else the program will stop printing the board after the first line.
+%	Main Run Loop
 %
 
-printList([]) :-
-	nl.
-
-printList([First|Others]) :-
-	write('['),
-	write(First),
-	write(']'),
-	printList(Others).
-	
-%	play(InputBoard, PieceType, PositionX, PositionY, OutputBoard) :-
-
-runMainLoop(Board) :-
-	writeln('got here!'),
-	promptForPlay('Player1', a, b, c, d).
+runMainLoop(Board, PlayCount, CurrentPlayer, PlayerOnHold) :-
+	promptForPlay(Board, PlayCount, CurrentPlayer),
+	NewPlayCount is (PlayCount + 1),
+	runMainLoop(Board, NewPlayCount, PlayerOnHold, CurrentPlayer).
 
 readPieceType(RetVal) :-
 	readInteger(RetVal),
@@ -93,34 +42,145 @@ readPieceType(RetVal) :-
 	writeln('You need to choose one value from 1/2/3.'),
 	readPieceType(RetVal).
 
-%
-%	validatePiecePosition(PieceType, PieceOrientation, PieceX, PieceY) is not done at all!
-%
-
-validatePiecePosition(PieceType, PieceOrientation, PieceX, PieceY) :-
-	.
-
-promptForCoordinates(PieceType, PieceOrientation, PieceX, PieceY) :-
-	write(Player), write(', please choose an X coordinate: '),
-	readCoordinateX(PieceX),
-	write(Player), write(' please choose an Y coordinate: '),
-	readCoordinateY(PieceY),
-	validatePiecePosition(PieceType, PieceOrientation, PieceX, PieceY),
+readPieceOrientation(RetVal) :-
+	read(RetVal),
+	(RetVal == 'v'; RetVal == 'h'),
 	!.
 
-promptForCoordinates(PieceType, PieceOrientation, PieceX, PieceY) :-
-	writeln('Invalid coordinates! Please try again.'),
-	promptForCoordinates(PieceType, PieceOrientation, PieceX, PieceY).
+readPieceOrientation(RetVal) :-
+	writeln('You need to type either "v" or "h".'),
+	readPieceOrientation(RetVal).
 
-promptForPlay(Player, PieceType, PieceOrientation, PieceX, PieceY) :-
-	!, 
+%
+%	Validation
+%
+
+checkForBlankSpaces(Row, 0) :-
+	!.
+
+checkForBlankSpaces([Head | Tail], NumberOfSpaces) :-
+	(Tail == '   '),
+	NewNumber is (NumberOfSpaces - 1),
+	checkForBlankSpaces(Tail, NewNumber).
+
+getPieceWidthAndHeight(PieceType, PieceOrientation, WidthReturn, HeightReturn) :-
+
+	(
+		(PieceType == 1),
+		(
+			(PieceOrientation == 'v', WidthReturn is 2, HeightReturn is 3);
+			(PieceOrientation == 'h', WidthReturn is 3, HeightReturn is 2)
+		)
+	);
+	
+	(
+		(PieceType == 2),
+		(
+			(PieceOrientation == 'v', WidthReturn is 2, HeightReturn is 4);
+			(PieceOrientation == 'h', WidthReturn is 4, HeightReturn is 2)
+		)
+	);
+	
+	(
+		(PieceType == 3),
+		(
+			(PieceOrientation == 'v', WidthReturn is 3, HeightReturn is 4);
+			(PieceOrientation == 'h', WidthReturn is 4, HeightReturn is 3)
+		)
+	)
+	
+	.
+
+checkHorizontalAvailability(_, _, 0) :-
+	!.
+
+checkHorizontalAvailability(Row, Index, Length) :-
+	getListObjectAtIndex(Row, Index, RetVal),
+	RetVal == '   ',
+	NewIndex is Index + 1,
+	NewLength is Length - 1,
+	!,
+	checkHorizontalAvailability(Row, NewIndex, NewLength).
+
+%
+%	Piece Positioning Checks
+%
+
+checkRectangularAvailability(_, _, _, _, 0) :-
+	!.
+
+checkRectangularAvailability(_, _, _, 0, _) :-
+	!.
+
+checkRectangularAvailability(Board, FirstX, FirstY, LengthX, LengthY) :-
+	getListObjectAtIndex(Board, FirstY, Row),
+	
+	checkHorizontalAvailability(Row, FirstX, LengthX),
+	
+	NextY is FirstY + 1,
+	NewLengthY is LengthY - 1,
+	
+	checkRectangularAvailability(Board, FirstX, NextY, LengthX, NewLengthY).
+
+pieceHasFreeSpace(Board, PieceType, PieceOrientation, PieceX, PieceY) :-
+	getPieceWidthAndHeight(PieceType, PieceOrientation, Width, Height),
+	
+	checkRectangularAvailability(Board, PieceX, PieceY, Width, Height).
+
+pieceHasAdjacentDifferentBlock(Board, PieceType, PieceOrientation, PieceX, PieceY) :-
+	writeln('To be implemented!'),
+	!.
+
+%
+%	Turn Validation
+%
+
+validateTurn(Board, PieceType, PieceOrientation, PieceX, PieceY) :-
+	writeln('[Turn Validation] Checking for free space...'),
+	pieceHasFreeSpace(Board, PieceType, PieceOrientation, PieceX, PieceY),
+	writeln('[Turn Validation] Checking for adjacent blocks...'),
+	pieceHasAdjacentDifferentBlock(Board, PieceType, PieceOrientation, PieceX, PieceY),
+	!.
+
+validateTurn(Board, PieceType, PieceOrientation, PieceX, PieceY) :-
+	writeln('Turn validation failed.').
+
+validateFirstTurn(Board, PieceType, PieceOrientation, PieceX, PieceY) :-
+	writeln('[Turn Validation] Checking for free space...'),
+	pieceHasFreeSpace(Board, PieceType, PieceOrientation, PieceX, PieceY),
+	!.
+
+validateFirstTurn(Board, PieceType, PieceOrientation, PieceX, PieceY) :-
+	writeln('Turn validation failed.').
+
+%
+%	Game Prompts
+%
+
+promptForCoordinates(Player, PieceX, PieceY, BoardSizeX, BoardSizeY) :-
+	write(Player), write(', please choose an X coordinate: '),
+	readInteger(PieceX),
+	PieceX >= 0,
+	BoardSizeX >= PieceX,
+	write(Player), write(' please choose an Y coordinate: '),
+	readInteger(PieceY),
+	PieceY >= 0,
+	BoardSizeY >= PieceY,
+	!.
+
+promptForCoordinates(Player, PieceX, PieceY, BoardSizeX, BoardSizeY) :-
+	write('Invalid coordinates! Please try again.'),
+	promptForCoordinates(Player, PieceX, PieceY, BoardSizeX, BoardSizeY).
+
+promptForPlay(Board, PlayCount, Player) :-
 	write(Player), write(', please choose a piece type (1/2/3): '),
 	readPieceType(PieceType),
 	!,
-	write(Player), write(', please choose an orientation (Vertical/Horizontal): '),
+	write(Player), write(', please choose an orientation ([v]ertical/[h]orizontal): '),
 	readPieceOrientation(PieceOrientation),
 	!,
-	promptForCoordinates(PieceX, PieceY).
+	promptForCoordinates(Player, PieceX, PieceY, 20, 20),
+	validateTurn(Board, PieceType, PieceOrientation, PieceX, PieceY).
 
 startGame :-
 	nl,
@@ -128,5 +188,6 @@ startGame :-
 	nl,
 	initialBoard(X),
 	printBoard(X),
-	runMainLoop(X).
+	runMainLoop(X),
+	!.
 	
