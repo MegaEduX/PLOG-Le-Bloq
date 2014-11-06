@@ -17,7 +17,7 @@ readInteger(ReturnValue) :-
 	!.
 
 readInteger(ReturnValue) :-
-	writeln('An integer was expected, not something else!'),
+	write('An integer was expected, not something else! Please retry'),
 	readInteger(ReturnValue).
 
 %
@@ -34,7 +34,7 @@ readYN(X) :-
 	!.
 
 readYN(X) :- 
-	writeln('You need to choose between "y" and "n".'),
+	write('You need to choose between "y" and "n". Please retry'),
 	readYN(X).
 
 %
@@ -44,4 +44,4 @@ readYN(X) :-
 %
 
 not(Goal) :- call(Goal), !, fail.
-not(Goal).
+not(_).

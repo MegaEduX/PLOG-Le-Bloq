@@ -1,26 +1,26 @@
 :- ensure_loaded(['utilities.pl', 'printing.pl', 'lists.pl']).
 
 initialBoard([
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],	
-	['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ']
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],	
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 ]).
 
 %
@@ -28,11 +28,15 @@ initialBoard([
 %
 
 runMainLoop(Board, PlayCount, CurrentPlayer, PlayerOnHold) :-
-	promptForPlay(Board, PlayCount, CurrentPlayer),
+	printBoard(Board),
+	
+	nl,
+	
+	promptForPlay(Board, PlayCount, CurrentPlayer, NewBoard),
 	
 	NewPlayCount is (PlayCount + 1),
 	
-	runMainLoop(Board, NewPlayCount, PlayerOnHold, CurrentPlayer).
+	runMainLoop(NewBoard, NewPlayCount, PlayerOnHold, CurrentPlayer).
 
 readPieceType(RetVal) :-
 	readInteger(RetVal),
@@ -61,11 +65,11 @@ readPieceOrientation(RetVal) :-
 %	Validation
 %
 
-checkForBlankSpaces(Row, 0) :-
+checkForBlankSpaces(_, 0) :-
 	!.
 
-checkForBlankSpaces([Head | Tail], NumberOfSpaces) :-
-	(Tail == '   '),
+checkForBlankSpaces([_ | Tail], NumberOfSpaces) :-
+	Tail is 0,
 	
 	NewNumber is (NumberOfSpaces - 1),
 	
@@ -102,29 +106,13 @@ getPieceWidthAndHeight(PieceType, PieceOrientation, WidthReturn, HeightReturn) :
 	
 	.
 
-pieceTypeToBoardRepresentation(PieceType, BoardRepresentation) :-
-	(
-		PieceType == 1,
-		BoardRepresentation is ' 1 '
-	);
-	
-	(
-		PieceType == 2,
-		BoardRepresentation is ' 2 '
-	);
-	
-	(
-		PieceType == 3,
-		BoardRepresentation is ' 3 '
-	).
-
 checkHorizontalAvailability(_, _, 0) :-
 	!.
 
 checkHorizontalAvailability(Row, Index, Length) :-
 	getListObjectAtIndex(Row, Index, RetVal),
 	
-	RetVal == '   ',
+	RetVal is 0,
 	
 	NewIndex is Index + 1,
 	NewLength is Length - 1,
@@ -165,12 +153,12 @@ pieceHasFreeSpace(Board, PieceType, PieceOrientation, PieceX, PieceY) :-
 checkLineForBlockExistance(_, _, 0) :-
 	!,
 	
-	(1 == 2).			%	This should do the same as return false?
+	fail.
 
-checkLineForBlockExistance(Line, Index, Length) :-
+checkLineForBlockExistance(Line, Index, _) :-
 	getListObjectAtIndex(Line, Index, Object),
 	
-	(Object != '   '),
+	(Object \== 0),
 	
 	!.
 
@@ -189,13 +177,13 @@ checkLineForBlockExistance(Line, Index, Length) :-
 checkColumnForBlockExistance(_, _, _, 0) :-
 	!,
 	
-	(1 == 2).
+	fail.
 
-checkColumnForBlockExistance(Board, Column, X, Length) :-
+checkColumnForBlockExistance(Board, Column, X, _) :-
 	getListObjectAtIndex(Board, Column, RetLine),
 	getListObjectAtIndex(RetLine, X, RetObject),
 	
-	(RetObject != '   '),
+	(RetObject \== 0),
 	
 	!.
 
@@ -214,9 +202,9 @@ checkColumnForBlockExistance(Board, Column, X, Length) :-
 checkLineForBlockOccurence(_, _, _, 0) :-
 	!,
 	
-	(1 == 2).
+	fail.
 
-checkLineForBlockOccurence(Line, Match, Index, Length) :-
+checkLineForBlockOccurence(Line, Match, Index, _) :-
 	getListObjectAtIndex(Line, Index, Object),
 	
 	(Object == Match),
@@ -230,6 +218,32 @@ checkLineForBlockOccurence(Line, Match, Index, Length) :-
 	NewLength is Length - 1,
 	
 	checkLineForBlockOccurence(Line, Match, NewIndex, NewLength).
+
+%
+%	Check Column for Block Occurence
+%
+
+checkColumnForBlockOccurence(_, _, _, _, 0) :-
+	!,
+	
+	fail.
+
+checkColumnForBlockOccurence(Board, Match, Column, X, _) :-
+	getListObjectAtIndex(Board, Column, RetLine),
+	getListObjectAtIndex(RetLine, X, RetObject),
+	
+	(RetObject == Match),
+	
+	!.
+
+checkColumnForBlockOccurence(Block, Match, Column, X, Length) :-
+	%	404 Piece Not Found
+	
+	NewColumn is Column + 1,
+	NewLength is Length - 1,
+	
+	checkColumnForBlockOccurence(Block, Match, NewColumn, X, NewLength).
+	
 
 %
 %	Adjacent Block Check
@@ -252,7 +266,7 @@ pieceHasAdjacentBlock(Board, PieceType, PieceOrientation, PieceX, PieceY) :-
 		%	Bottom Line
 		
 		(
-			BottomY is PieceY + PieceHeight + 1,
+			BottomY is PieceY + PieceHeight,
 			
 			getListObjectAtIndex(Board, BottomY, ReturnLineBottom),
 			checkLineForBlockExistance(ReturnLineBottom, PieceX, PieceWidth)	
@@ -263,24 +277,22 @@ pieceHasAdjacentBlock(Board, PieceType, PieceOrientation, PieceX, PieceY) :-
 		(
 			LeftX is PieceX - 1,
 			
-			checkColumnForBlockExistance(Board, PieceY, LeftX, PieceHeight);
+			checkColumnForBlockExistance(Board, PieceY, LeftX, PieceHeight)
 		);
 		
 		
 		%	Right Column
 		
 		(
-			RightX is PieceY + PieceWidth + 1,
+			RightX is PieceX + PieceWidth,
 			
-			checkColumnForBlockExistance(Board, PieceY, RightX, PieceHeight);
-		);
+			checkColumnForBlockExistance(Board, PieceY, RightX, PieceHeight)
+		)
 		
 	).
 
 pieceHasNoAdjacentSameBlock(Board, PieceType, PieceOrientation, PieceX, PieceY) :-
-
 	getPieceWidthAndHeight(PieceType, PieceOrientation, PieceWidth, PieceHeight),
-	pieceTypeToBoardRepresentation(PieceType, PieceRep),
 	
 	(
 		%	Top Line
@@ -289,56 +301,139 @@ pieceHasNoAdjacentSameBlock(Board, PieceType, PieceOrientation, PieceX, PieceY) 
 			TopY is PieceY - 1,
 			
 			getListObjectAtIndex(Board, TopY, ReturnLineTop),
-			not(checkLineForBlockOccurence(ReturnLineTop, PieceRep, PieceX, PieceWidth))
+			not(checkLineForBlockOccurence(ReturnLineTop, PieceType, PieceX, PieceWidth))
 		),
 		
 		%	Bottom Line
 		
 		(
-			BottomY is PieceY + PieceHeight + 1,
+			BottomY is PieceY + PieceHeight,
 			
 			getListObjectAtIndex(Board, BottomY, ReturnLineBottom),
-			not(checkLineForBlockOccurence(ReturnLineBottom, PieceRep, PieceX, PieceWidth))
+			not(checkLineForBlockOccurence(ReturnLineBottom, PieceType, PieceX, PieceWidth))
 		),
 		
 		%	Left Column
 		
 		(
+			LeftX is PieceX - 1,
 			
+			not(checkColumnForBlockOccurence(Board, PieceType, PieceY, LeftX, PieceHeight))
 		),
 		
 		%	Right Column
 		
 		(
+			RightX is PieceX + PieceWidth,
 			
-		),
-	),
+			not(checkColumnForBlockOccurence(Board, PieceType, PieceY, RightX, PieceHeight))
+		)
+	).
 	
-	writeln('To be implemented!').
+%
+%	Line Fill
+%
+
+lineFill(Line, _, 0, _, Line) :-
+	!.
+
+lineFill(Line, PieceType, Width, X, NewLine) :-
+	replace(Line, X, PieceType, ReturnedLine),
+	
+	NewWidth is Width - 1,
+	NewX is X + 1,
+	
+	lineFill(ReturnedLine, PieceType, NewWidth, NewX, NewLine).
+
+%
+%	Board Fill
+%
+
+boardFill(Board, _, _, 0, _, _, Board) :-
+	!.
+
+boardFill(Board, PieceType, Width, Height, X, Y, NewBoard) :-
+	getListObjectAtIndex(Board, Y, Line),
+	
+	lineFill(Line, PieceType, Width, X, NewLine),
+	replace(Board, Y, NewLine, ReturnedBoard),
+	
+	NewHeight is Height - 1,
+	NewY is Y + 1,
+	
+	boardFill(ReturnedBoard, PieceType, Width, NewHeight, X, NewY, NewBoard).
+
+fillBoardWithNewBlock(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard) :-
+	getPieceWidthAndHeight(PieceType, PieceOrientation, PieceWidth, PieceHeight),
+	
+	boardFill(Board, PieceType, PieceWidth, PieceHeight, PieceX, PieceY, NewBoard).
 
 %
 %	Turn Validation
 %
 
-validateTurn(Board, PieceType, PieceOrientation, PieceX, PieceY) :-
+validateTurn(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard) :-
 	writeln('[Turn Validation] Checking for free space...'),
 	pieceHasFreeSpace(Board, PieceType, PieceOrientation, PieceX, PieceY),
 	
-	writeln('[Turn Validation] Checking for adjacent blocks...'),
-	pieceHasAdjacentDifferentBlock(Board, PieceType, PieceOrientation, PieceX, PieceY),
+	writeln('[Turn Validation] Checking for adjacent blocks of the same type...'),
+	pieceHasNoAdjacentSameBlock(Board, PieceType, PieceOrientation, PieceX, PieceY),
+	
+	writeln('[Turn Validation] Checking for at least a block nearby...'),
+	pieceHasAdjacentBlock(Board, PieceType, PieceOrientation, PieceX, PieceY),
+	
+	%	And after all validations...
+	
+	writeln('[Turn Validation] Filling board...'),
+	
+	fillBoardWithNewBlock(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard),
 	
 	!.
 
-validateTurn(Board, PieceType, PieceOrientation, PieceX, PieceY) :-
-	writeln('Turn validation failed.').
+validateTurn(_, _, _, _, _, _) :-
+	writeln('Turn validation failed.'),
+	
+	fail.
 
-validateFirstTurn(Board, PieceType, PieceOrientation, PieceX, PieceY) :-
+validateFirstTurn(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard) :-
 	writeln('[Turn Validation] Checking for free space...'),
+	
 	pieceHasFreeSpace(Board, PieceType, PieceOrientation, PieceX, PieceY),
+	
+	writeln('[Turn Validation] Filling board...'),
+	
+	fillBoardWithNewBlock(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard),
+	
 	!.
 
-validateFirstTurn(Board, PieceType, PieceOrientation, PieceX, PieceY) :-
-	writeln('Turn validation failed.').
+validateFirstTurn(_, _, _, _, _, _) :-
+	writeln('Turn validation failed.'),
+	
+	fail.
+
+%
+%	Check for Available Turns
+%
+
+/*
+
+catIterateColumns(Board, CurrentColumn, BoardSizeX) :-
+	getListObjectAtIndex(Board, CurrentColumn, Object),
+	validateTurn(Board, )
+
+catIterateLines(Board, CurrentLine, BoardSizeX, BoardSizeY) :-
+	getListObjectAtIndex(Board, CurrentLine, Line),
+	catIterateColumns(Line, 0, BoardSizeX)
+
+cat(Board, BoardSizeX, BoardSizeY, )
+
+cat(Board, BoardSizeX, BoardSizeY, PieceType, PieceOrientation, CurrentX, CurrentY) :-
+	validateTurn(Board, PieceType, PieceOrientation, CurrentX, CurrentY, _),
+	
+
+checkForAvailableTurns(Board, BoardSizeX, BoardSizeY) :-
+
+*/	
 
 %
 %	Game Prompts
@@ -363,7 +458,7 @@ promptForCoordinates(Player, PieceX, PieceY, BoardSizeX, BoardSizeY) :-
 	write('Invalid coordinates! Please try again.'),
 	promptForCoordinates(Player, PieceX, PieceY, BoardSizeX, BoardSizeY).
 
-promptForPlay(Board, PlayCount, Player) :-
+promptForPlay(Board, PlayCount, Player, NewBoard) :-
 	write(Player), write(', please choose a piece type (1/2/3): '),
 	readPieceType(PieceType),
 	
@@ -371,16 +466,30 @@ promptForPlay(Board, PlayCount, Player) :-
 	readPieceOrientation(PieceOrientation),
 	
 	promptForCoordinates(Player, PieceX, PieceY, 20, 20),
-	validateTurn(Board, PieceType, PieceOrientation, PieceX, PieceY).
+	
+	(
+		(
+			PlayCount is 0,
+			validateFirstTurn(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard)
+		);
+		
+		(
+			not(PlayCount is 0),
+			validateTurn(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard)
+		)
+	),
+	
+	!.
+
+promptForPlay(Board, PlayCount, Player, NewBoard) :-
+	writeln('You messed up. Try again! :)'),
+	
+	promptForPlay(Board, PlayCount, Player, NewBoard).
 
 startGame :-
 	nl, writeln('Welcome to Le Bloq, Prolog Edition!'), nl,
 	
 	initialBoard(X),
 	
-	printBoard(X),
-	
-	runMainLoop(X),
-	
-	.
+	runMainLoop(X, 0, 'Player 1', 'Player 2').
 	

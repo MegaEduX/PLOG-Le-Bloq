@@ -8,8 +8,20 @@ printList([]) :-
 	nl.
 
 printList([First|Others]) :-
-	write('['),
-	write(First),
-	write(']'),
+	write('[ '),
 	
+	(
+		(
+			First is 0,
+			write(' ')
+		);
+		
+		(
+			not(First is 0),
+			write(First)
+		)
+	),
+	
+	write(' ]'),
 	printList(Others).
+	
