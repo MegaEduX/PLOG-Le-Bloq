@@ -34,9 +34,35 @@ runMainLoop(Board, PlayCount, CurrentPlayer, PlayerOnHold) :-
 	
 	promptForPlay(Board, PlayCount, CurrentPlayer, NewBoard),
 	
-	NewPlayCount is (PlayCount + 1),
+	(
+		(
+			checkForAvailableTurns(Board, 20, 20),
+			
+			GameRunning is 1
+		);
+		
+		(
+			not(checkForAvailableTurns(Board, 20, 20)),
+			
+			GameRunning is 0
+		)
+	),
 	
-	runMainLoop(NewBoard, NewPlayCount, PlayerOnHold, CurrentPlayer).
+	(
+		(
+			GameRunning is 1,
+			
+			NewPlayCount is (PlayCount + 1),
+			
+			runMainLoop(NewBoard, NewPlayCount, PlayerOnHold, CurrentPlayer)
+		);
+		
+		(
+			GameRunning is 0,
+			
+			writeln('Game Over!')
+		)
+	).
 
 readPieceType(RetVal) :-
 	readInteger(RetVal),
@@ -395,6 +421,15 @@ validateTurn(_, _, _, _, _, _) :-
 	
 	fail.
 
+validateTurnSilent(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard) :-
+	pieceHasFreeSpace(Board, PieceType, PieceOrientation, PieceX, PieceY),
+	pieceHasNoAdjacentSameBlock(Board, PieceType, PieceOrientation, PieceX, PieceY),
+	pieceHasAdjacentBlock(Board, PieceType, PieceOrientation, PieceX, PieceY),
+	
+	%	And after all validations...
+	
+	fillBoardWithNewBlock(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard).
+
 validateFirstTurn(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard) :-
 	writeln('[Turn Validation] Checking for free space...'),
 	
@@ -415,25 +450,56 @@ validateFirstTurn(_, _, _, _, _, _) :-
 %	Check for Available Turns
 %
 
-/*
-
-catIterateColumns(Board, CurrentColumn, BoardSizeX) :-
-	getListObjectAtIndex(Board, CurrentColumn, Object),
-	validateTurn(Board, )
-
-catIterateLines(Board, CurrentLine, BoardSizeX, BoardSizeY) :-
-	getListObjectAtIndex(Board, CurrentLine, Line),
-	catIterateColumns(Line, 0, BoardSizeX)
-
-cat(Board, BoardSizeX, BoardSizeY, )
-
-cat(Board, BoardSizeX, BoardSizeY, PieceType, PieceOrientation, CurrentX, CurrentY) :-
-	validateTurn(Board, PieceType, PieceOrientation, CurrentX, CurrentY, _),
+iterateThroughBoard(Board, PieceType, PieceOrientation, _, _, CurrentX, CurrentY) :-
+	validateTurnSilent(Board, PieceType, PieceOrientation, CurrentX, CurrentY, _),
 	
+	!.
+
+iterateThroughBoard(Board, PieceType, PieceOrientation, BoardSizeX, BoardSizeY, CurrentX, CurrentY) :-
+	(	
+		CurrentX is BoardSizeX - 1,
+		not(CurrentY is BoardSizeY - 1),
+		
+		writeln('End of row case.'),
+		
+		NewX is 0,
+		NewY is CurrentX + 1,
+		
+		iterateThroughBoard(Board, PieceType, PieceOrientation, BoardSizeX, BoardSizeY, NewX, NewY)
+	);
+	
+	%	End of everything...
+	
+	(	
+		CurrentY is BoardSizeY - 1,
+		CurrentX is BoardSizeX - 1,
+		
+		writeln('End of everything case.')
+		
+		%	Return True! Or something.
+	);
+	
+	%	Normal case...
+	
+	(	
+		not(CurrentX is BoardSizeX - 1),
+		
+		writeln('Normal case.'),
+		
+		NewX is CurrentX + 1,
+		
+		iterateThroughBoard(Board, PieceType, PieceOrientation, BoardSizeX, BoardSizeY, NewX, CurrentY)
+	).
 
 checkForAvailableTurns(Board, BoardSizeX, BoardSizeY) :-
-
-*/	
+	writeln('Checking for endgame condition...'),
+	
+	iterateThroughBoard(Board, 1, 'v', BoardSizeX, BoardSizeY, 0, 0);
+	iterateThroughBoard(Board, 1, 'h', BoardSizeX, BoardSizeY, 0, 0);
+	iterateThroughBoard(Board, 2, 'v', BoardSizeX, BoardSizeY, 0, 0);
+	iterateThroughBoard(Board, 2, 'h', BoardSizeX, BoardSizeY, 0, 0);
+	iterateThroughBoard(Board, 3, 'v', BoardSizeX, BoardSizeY, 0, 0);
+	iterateThroughBoard(Board, 3, 'h', BoardSizeX, BoardSizeY, 0, 0).
 
 %
 %	Game Prompts

@@ -1,4 +1,4 @@
-getListObjectAtIndex([First | Others], 0, First) :-
+getListObjectAtIndex([First | _], 0, First) :-
 	!.
 
 getListObjectAtIndex([_ | Others], Row, First) :-
