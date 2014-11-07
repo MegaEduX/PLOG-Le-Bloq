@@ -28,6 +28,8 @@ initialBoard([
 %
 
 runMainLoop(Board, PlayCount, CurrentPlayer, PlayerOnHold) :-
+	nl,
+	
 	printBoard(Board),
 	
 	nl,
@@ -36,15 +38,25 @@ runMainLoop(Board, PlayCount, CurrentPlayer, PlayerOnHold) :-
 	
 	(
 		(
+			not(PlayCount is 0),
+			
 			checkForAvailableTurns(Board, 20, 20),
 			
 			GameRunning is 1
 		);
 		
 		(
+			not(PlayCount is 0),
+			
 			not(checkForAvailableTurns(Board, 20, 20)),
 			
 			GameRunning is 0
+		);
+		
+		(
+			PlayCount is 0,
+			
+			GameRunning is 1
 		)
 	),
 	
@@ -399,6 +411,8 @@ fillBoardWithNewBlock(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoa
 %
 
 validateTurn(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard) :-
+	nl,
+	
 	writeln('[Turn Validation] Checking for free space...'),
 	pieceHasFreeSpace(Board, PieceType, PieceOrientation, PieceX, PieceY),
 	
@@ -424,13 +438,11 @@ validateTurn(_, _, _, _, _, _) :-
 validateTurnSilent(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard) :-
 	pieceHasFreeSpace(Board, PieceType, PieceOrientation, PieceX, PieceY),
 	pieceHasNoAdjacentSameBlock(Board, PieceType, PieceOrientation, PieceX, PieceY),
-	pieceHasAdjacentBlock(Board, PieceType, PieceOrientation, PieceX, PieceY),
-	
-	%	And after all validations...
-	
-	fillBoardWithNewBlock(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard).
+	pieceHasAdjacentBlock(Board, PieceType, PieceOrientation, PieceX, PieceY).
 
 validateFirstTurn(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard) :-
+	nl,
+	
 	writeln('[Turn Validation] Checking for free space...'),
 	
 	pieceHasFreeSpace(Board, PieceType, PieceOrientation, PieceX, PieceY),
@@ -460,10 +472,10 @@ iterateThroughBoard(Board, PieceType, PieceOrientation, BoardSizeX, BoardSizeY, 
 		CurrentX is BoardSizeX - 1,
 		not(CurrentY is BoardSizeY - 1),
 		
-		writeln('End of row case.'),
+		%	writeln('End of row case.'),
 		
 		NewX is 0,
-		NewY is CurrentX + 1,
+		NewY is CurrentY + 1,
 		
 		iterateThroughBoard(Board, PieceType, PieceOrientation, BoardSizeX, BoardSizeY, NewX, NewY)
 	);
@@ -474,7 +486,9 @@ iterateThroughBoard(Board, PieceType, PieceOrientation, BoardSizeX, BoardSizeY, 
 		CurrentY is BoardSizeY - 1,
 		CurrentX is BoardSizeX - 1,
 		
-		writeln('End of everything case.')
+		fail
+		
+		%	writeln('End of everything case.')
 		
 		%	Return True! Or something.
 	);
@@ -484,7 +498,7 @@ iterateThroughBoard(Board, PieceType, PieceOrientation, BoardSizeX, BoardSizeY, 
 	(	
 		not(CurrentX is BoardSizeX - 1),
 		
-		writeln('Normal case.'),
+		%	writeln('Normal case.'),
 		
 		NewX is CurrentX + 1,
 		
@@ -492,7 +506,7 @@ iterateThroughBoard(Board, PieceType, PieceOrientation, BoardSizeX, BoardSizeY, 
 	).
 
 checkForAvailableTurns(Board, BoardSizeX, BoardSizeY) :-
-	writeln('Checking for endgame condition...'),
+	writeln('[Logic] Checking for endgame condition...'),
 	
 	iterateThroughBoard(Board, 1, 'v', BoardSizeX, BoardSizeY, 0, 0);
 	iterateThroughBoard(Board, 1, 'h', BoardSizeX, BoardSizeY, 0, 0);
@@ -500,6 +514,12 @@ checkForAvailableTurns(Board, BoardSizeX, BoardSizeY) :-
 	iterateThroughBoard(Board, 2, 'h', BoardSizeX, BoardSizeY, 0, 0);
 	iterateThroughBoard(Board, 3, 'v', BoardSizeX, BoardSizeY, 0, 0);
 	iterateThroughBoard(Board, 3, 'h', BoardSizeX, BoardSizeY, 0, 0).
+
+%
+%	Calculate Scoring
+%
+
+%	MISSING!
 
 %
 %	Game Prompts
@@ -553,7 +573,7 @@ promptForPlay(Board, PlayCount, Player, NewBoard) :-
 	promptForPlay(Board, PlayCount, Player, NewBoard).
 
 startGame :-
-	nl, writeln('Welcome to Le Bloq, Prolog Edition!'), nl,
+	nl, writeln('Welcome to Le Bloq, Prolog Edition!'),
 	
 	initialBoard(X),
 	
