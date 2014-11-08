@@ -27,14 +27,20 @@ initialBoard([
 %	Main Run Loop
 %
 
-runMainLoop(Board, PlayCount, CurrentPlayer, PlayerOnHold) :-
+runMainLoop(Board, BoardSizeX, BoardSizeY, PlayCount, CurrentPlayer, PlayerOnHold) :-
 	nl,
 	
 	printBoard(Board),
 	
 	nl,
 	
-	promptForPlay(Board, PlayCount, CurrentPlayer, NewBoard),
+	promptForPlay(Board, BoardSizeX, BoardSizeY, PlayCount, CurrentPlayer, NewBoard),
+	
+	writeln('[Scoring] Calculating and filling score... (THIS MAY TAKE A WHILE!)'),
+	
+	ScoringPlayer is CurrentPlayer + 3,
+	
+	fillBoardWithScoring(NewBoard, BoardSizeX, BoardSizeY, 0, 0, ScoringPlayer, ScoredBoard),
 	
 	(
 		(
@@ -66,11 +72,13 @@ runMainLoop(Board, PlayCount, CurrentPlayer, PlayerOnHold) :-
 			
 			NewPlayCount is (PlayCount + 1),
 			
-			runMainLoop(NewBoard, NewPlayCount, PlayerOnHold, CurrentPlayer)
+			runMainLoop(ScoredBoard, BoardSizeX, BoardSizeY, NewPlayCount, PlayerOnHold, CurrentPlayer)
 		);
 		
 		(
 			GameRunning is 0,
+			
+			congratulateWinner(Board, 20, 20),
 			
 			writeln('Game Over!')
 		)
@@ -435,7 +443,7 @@ validateTurn(_, _, _, _, _, _) :-
 	
 	fail.
 
-validateTurnSilent(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard) :-
+validateTurnSilent(Board, PieceType, PieceOrientation, PieceX, PieceY) :-
 	pieceHasFreeSpace(Board, PieceType, PieceOrientation, PieceX, PieceY),
 	pieceHasNoAdjacentSameBlock(Board, PieceType, PieceOrientation, PieceX, PieceY),
 	pieceHasAdjacentBlock(Board, PieceType, PieceOrientation, PieceX, PieceY).
@@ -463,7 +471,7 @@ validateFirstTurn(_, _, _, _, _, _) :-
 %
 
 iterateThroughBoard(Board, PieceType, PieceOrientation, _, _, CurrentX, CurrentY) :-
-	validateTurnSilent(Board, PieceType, PieceOrientation, CurrentX, CurrentY, _),
+	validateTurnSilent(Board, PieceType, PieceOrientation, CurrentX, CurrentY),
 	
 	!.
 
@@ -519,20 +527,266 @@ checkForAvailableTurns(Board, BoardSizeX, BoardSizeY) :-
 %	Calculate Scoring
 %
 
-%	MISSING!
+%	Propagate Scoring Up
+
+propagateScoringUp(Board, BoardSizeX, BoardSizeY, CurrentPosX, CurrentPosY, Player, NewBoard) :-
+	UpPosY is CurrentPosY - 1,
+	
+	not(UpPosY is -1),
+	
+	getListObjectAtIndex(Board, UpPosY, Row),
+	getListObjectAtIndex(Row, CurrentPosX, UpperObject),
+	
+	(
+		(
+			UpperObject is 0,
+			
+			replace(Row, CurrentPosX, Player, NewRow),
+			replace(Board, UpPosY, NewRow, Board1),
+			
+			propagateScoringUp(Board1, BoardSizeX, BoardSizeY, CurrentPosX, UpPosY, Player, Board2),
+			propagateScoringLeft(Board2, BoardSizeX, BoardSizeY, CurrentPosX, UpPosY, Player, Board3),
+			propagateScoringRight(Board3, BoardSizeX, BoardSizeY, CurrentPosX, UpPosY, Player, Board4),
+			
+			unify_with_occurs_check(NewBoard, Board4)
+		);
+		
+		(
+			not(UpperObject is 0),
+			
+			unify_with_occurs_check(NewBoard, Board)
+		)
+	).
+
+%	Propagate Scoring Down
+
+propagateScoringDown(Board, BoardSizeX, BoardSizeY, CurrentPosX, CurrentPosY, Player, NewBoard) :-
+	DownPosY is CurrentPosY + 1,
+
+	not(DownPosY is BoardSizeY),
+
+	getListObjectAtIndex(Board, DownPosY, Row),
+	getListObjectAtIndex(Row, CurrentPosX, LowerObject),
+
+	(
+		(
+			LowerObject is 0,
+		
+			replace(Row, CurrentPosX, Player, NewRow),
+			replace(Board, DownPosY, NewRow, Board1),
+		
+			propagateScoringDown(Board1, BoardSizeX, BoardSizeY, CurrentPosX, DownPosY, Player, Board2),
+			propagateScoringLeft(Board2, BoardSizeX, BoardSizeY, CurrentPosX, DownPosY, Player, Board3),
+			propagateScoringRight(Board3, BoardSizeX, BoardSizeY, CurrentPosX, DownPosY, Player, Board4),
+			
+			unify_with_occurs_check(NewBoard, Board4)
+		);
+	
+		(
+			not(LowerObject is 0),
+			
+			unify_with_occurs_check(NewBoard, Board)
+		)
+	).
+
+%	Propagate Scoring Left
+
+propagateScoringLeft(Board, BoardSizeX, BoardSizeY, CurrentPosX, CurrentPosY, Player, NewBoard) :-
+	LeftPosX is CurrentPosX - 1,
+	
+	not(LeftPosX is -1),
+	
+	getListObjectAtIndex(Board, CurrentPosY, Row),
+	getListObjectAtIndex(Row, LeftPosX, LeftObject),
+	
+	(
+		(
+			LeftObject is 0,
+			
+			replace(Row, LeftPosX, Player, NewRow),
+			replace(Board, CurrentPosY, NewRow, Board1),
+			
+			propagateScoringUp(Board1, BoardSizeX, BoardSizeY, LeftPosX, CurrentPosY, Player, Board2),
+			propagateScoringDown(Board2, BoardSizeX, BoardSizeY, LeftPosX, CurrentPosY, Player, Board3),
+			propagateScoringLeft(Board3, BoardSizeX, BoardSizeY, LeftPosX, CurrentPosY, Player, Board4),
+			
+			unify_with_occurs_check(NewBoard, Board4)
+		);
+		
+		(
+			not(LeftObject is 0),
+			
+			unify_with_occurs_check(NewBoard, Board)
+		)
+	).
+	
+%	Propagate Scoring Right
+
+propagateScoringRight(Board, BoardSizeX, BoardSizeY, CurrentPosX, CurrentPosY, Player, NewBoard) :-
+	RightPosX is CurrentPosX + 1,
+	
+	not(RightPosX is BoardSizeX),
+	
+	getListObjectAtIndex(Board, CurrentPosY, Row),
+	getListObjectAtIndex(Row, RightPosX, RightObject),
+	
+	(
+		(
+			RightObject is 0,
+			
+			replace(Row, RightPosX, Player, NewRow),
+			replace(Board, CurrentPosY, NewRow, Board1),
+			
+			propagateScoringUp(Board1, BoardSizeX, BoardSizeY, RightPosX, CurrentPosY, Player, Board2),
+			propagateScoringDown(Board2, BoardSizeX, BoardSizeY, RightPosX, CurrentPosY, Player, Board3),
+			propagateScoringRight(Board3, BoardSizeX, BoardSizeY, RightPosX, CurrentPosY, Player, Board4),
+			
+			unify_with_occurs_check(NewBoard, Board4)
+		);
+		
+		(
+			not(RightObject is 0),
+			
+			unify_with_occurs_check(NewBoard, Board)
+		)
+	).
+
+fillBoardWithScoring(Board, BoardSizeX, BoardSizeY, BoardSizeX, CurrentPosY, Player, NewBoard) :-	%	BoardSizeX == CurrentPosX && EOB
+	NewPosX is 0,
+	NewPosY is CurrentPosY + 1,
+	
+	(
+		(
+			NewPosY is BoardSizeY,
+			
+			unify_with_occurs_check(Board, NewBoard)
+		);
+		
+		(
+			not(NewPosY is BoardSizeY),
+			fillBoardWithScoring(Board, BoardSizeX, BoardSizeY, NewPosX, NewPosY, Player, NewBoard)
+		)
+	).
+
+fillBoardWithScoring(Board, BoardSizeX, BoardSizeY, CurrentPosX, CurrentPosY, Player, NewBoard) :-
+	getListObjectAtIndex(Board, CurrentPosY, Row),
+	getListObjectAtIndex(Row, CurrentPosX, Object),
+	
+	Object is 0,
+	
+	replace(Row, CurrentPosX, Player, NewRow),
+	replace(Board, CurrentPosY, NewRow, TemporaryBoard),
+	
+	propagateScoringUp(TemporaryBoard, BoardSizeX, BoardSizeY, CurrentPosX, CurrentPosY, Player, BoardUp),
+	propagateScoringDown(BoardUp, BoardSizeX, BoardSizeY, CurrentPosX, CurrentPosY, Player, BoardDown),
+	propagateScoringRight(BoardDown, BoardSizeX, BoardSizeY, CurrentPosX, CurrentPosY, Player, BoardRight),
+	propagateScoringLeft(BoardRight, BoardSizeX, BoardSizeY, CurrentPosX, CurrentPosY, Player, NewBoard),
+	
+	!.
+
+fillBoardWithScoring(Board, BoardSizeX, BoardSizeY, CurrentPosX, CurrentPosY, Player, NewBoard) :-
+	NewPosX is CurrentPosX + 1,
+	
+	fillBoardWithScoring(Board, BoardSizeX, BoardSizeY, NewPosX, CurrentPosY, Player, NewBoard).
+
+%
+%	Check who's the Winner
+%
+
+checkForWinner(_, _, BoardSizeY, _, BoardSizeY, Player1Points, Player2Points, Winner) :-
+	(
+		Player1Points > Player2Points,
+		unify_with_occurs_check(Winner, 1)
+	);
+	
+	(
+		Player2Points > Player1Points,
+		unify_with_occurs_check(Winner, 2)
+	);
+	
+	(
+		Player1Points is Player2Points,
+		unify_with_occurs_check(Winner, 3)	%	3 means tie!
+	).
+
+checkForWinner(Board, BoardSizeX, BoardSizeY, CurrentPosX, CurrentPosY, Player1Points, Player2Points, Winner) :-
+	getListObjectAtIndex(Board, CurrentPosY, Row),
+	getListObjectAtIndex(Row, CurrentPosX, Object),
+	
+	NewPosX is CurrentPosX + 1,
+	
+	(
+		(
+			not(NewPosX is BoardSizeX),
+			ConfirmedNewPosX is NewPosX
+		);
+		
+		(
+			NewPosX is BoardSizeX,
+			ConfirmedNewPosX is 0,
+			NewPosY is CurrentPosY + 1
+		)
+	),
+	
+	(
+		(
+			Object is 4,
+			NewPlayer1Points is Player1Points + 1,
+			NewPlayer2Points is Player2Points
+		);
+		
+		(
+			Object is 5,
+			NewPlayer1Points is Player1Points,
+			NewPlayer2Points is Player2Points + 1
+		);
+		
+		(
+			not(Object is 4),
+			not(Object is 5),
+			
+			NewPlayer1Points is Player1Points,
+			NewPlayer2Points is Player2Points
+		)
+	),
+	
+	checkForWinner(Board, BoardSizeX, BoardSizeY, ConfirmedNewPosX, NewPosY, NewPlayer1Points, NewPlayer2Points, Winner).
+
+congratulateWinner(Board, BoardSizeX, BoardSizeY) :-
+	checkForWinner(Board, BoardSizeX, BoardSizeY, 0, 0, 0, 0, Winner),
+	
+	(
+		(
+			Winner is 1,
+			
+			writeln('Congratulations Player 1, you won!')
+		);
+		
+		(
+			Winner is 2,
+			
+			writeln('Congratulations Player 2, you won!')
+		);
+		
+		(
+			Winner is 3,
+			
+			writeln('It\'s a tie!')
+		)
+	).
 
 %
 %	Game Prompts
 %
 
 promptForCoordinates(Player, PieceX, PieceY, BoardSizeX, BoardSizeY) :-
-	write(Player), write(', please choose an X coordinate: '),
+	write('Player '), write(Player), write(', please choose an X coordinate: '),
 	readInteger(PieceX),
 	
 	PieceX >= 0,
 	BoardSizeX >= PieceX,
 	
-	write(Player), write(' please choose an Y coordinate: '),
+	write('Player '), write(Player), write(' please choose an Y coordinate: '),
 	readInteger(PieceY),
 	
 	PieceY >= 0,
@@ -544,14 +798,14 @@ promptForCoordinates(Player, PieceX, PieceY, BoardSizeX, BoardSizeY) :-
 	write('Invalid coordinates! Please try again.'),
 	promptForCoordinates(Player, PieceX, PieceY, BoardSizeX, BoardSizeY).
 
-promptForPlay(Board, PlayCount, Player, NewBoard) :-
-	write(Player), write(', please choose a piece type (1/2/3): '),
+promptForPlay(Board, BoardSizeX, BoardSizeY, PlayCount, Player, NewBoard) :-
+	write('Player '), write(Player), write(', please choose a piece type (1/2/3): '),
 	readPieceType(PieceType),
 	
-	write(Player), write(', please choose an orientation ([v]ertical/[h]orizontal): '),
+	write('Player '), write(Player), write(', please choose an orientation ([v]ertical/[h]orizontal): '),
 	readPieceOrientation(PieceOrientation),
 	
-	promptForCoordinates(Player, PieceX, PieceY, 20, 20),
+	promptForCoordinates(Player, PieceX, PieceY, BoardSizeX, BoardSizeY),
 	
 	(
 		(
@@ -567,15 +821,15 @@ promptForPlay(Board, PlayCount, Player, NewBoard) :-
 	
 	!.
 
-promptForPlay(Board, PlayCount, Player, NewBoard) :-
+promptForPlay(Board, BoardSizeX, BoardSizeY, PlayCount, Player, NewBoard) :-
 	writeln('You messed up. Try again! :)'),
 	
-	promptForPlay(Board, PlayCount, Player, NewBoard).
+	promptForPlay(Board, BoardSizeX, BoardSizeY, PlayCount, Player, NewBoard).
 
 startGame :-
 	nl, writeln('Welcome to Le Bloq, Prolog Edition!'),
 	
 	initialBoard(X),
 	
-	runMainLoop(X, 0, 'Player 1', 'Player 2').
+	runMainLoop(X, 20, 20, 0, 1, 2).
 	
