@@ -1,4 +1,5 @@
 :- ensure_loaded(['utilities.pl', 'printing.pl', 'lists.pl', 'board.pl']).
+:- use_module(library(random)).
 
 %
 %	Main Run Loop
@@ -13,7 +14,7 @@ runMainLoop(Board, BoardSizeX, BoardSizeY, PlayCount, CurrentPlayer, PlayerOnHol
 	
 	promptForPlay(Board, BoardSizeX, BoardSizeY, PlayCount, CurrentPlayer, NewBoard),
 	
-	writeln('[Scoring] Calculating and filling score... (THIS MAY TAKE A WHILE!)'),
+	writeln('[Scoring] Calculating and filling score... (This may take a while for big boards...)'),
 	
 	ScoringPlayer is CurrentPlayer + 3,
 	
@@ -52,9 +53,12 @@ runMainLoopAIvsAI(Board, BoardSizeX, BoardSizeY, PlayCount, CurrentPlayer, Playe
 	
 	nl,
 	
-	playComputerino(Board, BoardSizeX, BoardSizeY, PlayCount, CurrentPlayer, NewBoard),
+	%	Player 1 difficulty is 1
+	%	Player 2 difficulty is 2
 	
-	writeln('[Scoring] Calculating and filling score... (THIS MAY TAKE A WHILE!)'),
+	playComputerino(Board, CurrentPlayer, BoardSizeX, BoardSizeY, PlayCount, CurrentPlayer, NewBoard),
+	
+	writeln('[Scoring] Calculating and filling score... (This may take a while for big boards...)'),
 	
 	ScoringPlayer is CurrentPlayer + 3,
 	
@@ -86,7 +90,7 @@ runMainLoopAIvsAI(Board, BoardSizeX, BoardSizeY, PlayCount, CurrentPlayer, Playe
 		)
 	).
 
-runMainLoopPlayerVsAI(Board, BoardSizeX, BoardSizeY, PlayCount, CurrentPlayer, PlayerOnHold) :-
+runMainLoopPlayerVsAI(Board, Difficulty, BoardSizeX, BoardSizeY, PlayCount, CurrentPlayer, PlayerOnHold) :-
 	nl,
 	
 	printBoard(Board),
@@ -102,11 +106,11 @@ runMainLoopPlayerVsAI(Board, BoardSizeX, BoardSizeY, PlayCount, CurrentPlayer, P
 		
 		(
 			CurrentPlayer is 2,
-			playComputerino(Board, BoardSizeX, BoardSizeY, PlayCount, CurrentPlayer, NewBoard)
+			playComputerino(Board, Difficulty, BoardSizeX, BoardSizeY, PlayCount, CurrentPlayer, NewBoard)
 		)
 	),
 	
-	writeln('[Scoring] Calculating and filling score... (THIS MAY TAKE A WHILE!)'),
+	writeln('[Scoring] Calculating and filling score... (This may take a while for big boards...)'),
 	
 	ScoringPlayer is CurrentPlayer + 3,
 	
@@ -120,7 +124,7 @@ runMainLoopPlayerVsAI(Board, BoardSizeX, BoardSizeY, PlayCount, CurrentPlayer, P
 			
 			NewPlayCount is (PlayCount + 1),
 			
-			runMainLoopPlayerVsAI(ScoredBoard, BoardSizeX, BoardSizeY, NewPlayCount, PlayerOnHold, CurrentPlayer)
+			runMainLoopPlayerVsAI(ScoredBoard, Difficulty, BoardSizeX, BoardSizeY, NewPlayCount, PlayerOnHold, CurrentPlayer)
 		);
 		
 		(
@@ -487,18 +491,18 @@ fillBoardWithNewBlock(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoa
 validateTurn(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard) :-
 	nl,
 	
-	writeln('[Turn Validation] Checking for free space...'),
+	%	writeln('[Turn Validation] Checking for free space...'),
 	pieceHasFreeSpace(Board, PieceType, PieceOrientation, PieceX, PieceY),
 	
-	writeln('[Turn Validation] Checking for adjacent blocks of the same type...'),
+	%	writeln('[Turn Validation] Checking for adjacent blocks of the same type...'),
 	pieceHasNoAdjacentSameBlock(Board, PieceType, PieceOrientation, PieceX, PieceY),
 	
-	writeln('[Turn Validation] Checking for at least a block nearby...'),
+	%	writeln('[Turn Validation] Checking for at least a block nearby...'),
 	pieceHasAdjacentBlock(Board, PieceType, PieceOrientation, PieceX, PieceY),
 	
 	%	And after all validations...
 	
-	writeln('[Turn Validation] Filling board...'),
+	%	writeln('[Turn Validation] Filling board...'),
 	
 	fillBoardWithNewBlock(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard),
 	
@@ -512,17 +516,18 @@ validateTurn(_, _, _, _, _, _) :-
 validateTurnSilent(Board, PieceType, PieceOrientation, PieceX, PieceY) :-
 	pieceHasFreeSpace(Board, PieceType, PieceOrientation, PieceX, PieceY),
 	pieceHasNoAdjacentSameBlock(Board, PieceType, PieceOrientation, PieceX, PieceY),
-	pieceHasAdjacentBlock(Board, PieceType, PieceOrientation, PieceX, PieceY),
-	write('[Debug] Piece '), write(PieceType), write(' / '), write(PieceOrientation), write(' - '), write(PieceX), write(', '), write(PieceY), writeln(' can be placed.').
+	pieceHasAdjacentBlock(Board, PieceType, PieceOrientation, PieceX, PieceY).
+	
+	%	write('[Debug] Piece '), write(PieceType), write(' / '), write(PieceOrientation), write(' - '), write(PieceX), write(', '), write(PieceY), writeln(' can be placed.').
 
 validateFirstTurn(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard) :-
 	nl,
 	
-	writeln('[Turn Validation] Checking for free space...'),
+	%	writeln('[Turn Validation] Checking for free space...'),
 	
 	pieceHasFreeSpace(Board, PieceType, PieceOrientation, PieceX, PieceY),
 	
-	writeln('[Turn Validation] Filling board...'),
+	%	writeln('[Turn Validation] Filling board...'),
 	
 	fillBoardWithNewBlock(Board, PieceType, PieceOrientation, PieceX, PieceY, NewBoard),
 	
@@ -587,6 +592,67 @@ checkForAvailableTurns(Board, BoardSizeX, BoardSizeY) :-
 	).
 
 %
+%	Count Available Turns
+%
+
+cAvailableTurn(_, _, _, _, SizeY, _, SizeY, Count, RetVal) :-
+	unify_with_occurs_check(Count, RetVal),
+	
+	!.
+
+cAvailableTurn(Board, PieceType, PieceOrientation, BoardSizeX, BoardSizeY, CurrentX, CurrentY, CurrentCount, RetVal) :-
+	(
+		(
+			validateTurnSilent(Board, PieceType, PieceOrientation, CurrentX, CurrentY),
+			NewCount is CurrentCount + 1
+		);
+		
+		(
+			NewCount is CurrentCount
+		)
+		
+	),
+	
+	(
+		(	
+			CurrentX is BoardSizeX - 1,
+			not(CurrentY is BoardSizeY - 1),
+		
+			NewX is 0,
+			NewY is CurrentY + 1,
+		
+			cAvailableTurn(Board, PieceType, PieceOrientation, BoardSizeX, BoardSizeY, NewX, NewY, NewCount, RetVal)
+		);
+		
+		%	End of everything...
+		
+		(	
+			CurrentY is BoardSizeY - 1,
+			CurrentX is BoardSizeX - 1,
+			
+			cAvailableTurn(_, _, _, _, BoardSizeY, _, BoardSizeY, NewCount, RetVal)
+		);
+		
+		%	Normal case...
+		
+		(	
+			not(CurrentX is BoardSizeX - 1),
+		
+			NewX is CurrentX + 1,
+		
+			cAvailableTurn(Board, PieceType, PieceOrientation, BoardSizeX, BoardSizeY, NewX, CurrentY, NewCount, RetVal)
+		)
+	).
+
+countAvailableTurns(Board, BoardSizeX, BoardSizeY, ReturnValue) :-
+	cAvailableTurn(Board, 1, 'v', BoardSizeX, BoardSizeY, 0, 0, 0, Sum),
+	cAvailableTurn(Board, 1, 'h', BoardSizeX, BoardSizeY, 0, 0, Sum, Sum2),
+	cAvailableTurn(Board, 2, 'v', BoardSizeX, BoardSizeY, 0, 0, Sum2, Sum3),
+	cAvailableTurn(Board, 2, 'h', BoardSizeX, BoardSizeY, 0, 0, Sum3, Sum4),
+	cAvailableTurn(Board, 3, 'v', BoardSizeX, BoardSizeY, 0, 0, Sum4, Sum5),
+	cAvailableTurn(Board, 3, 'h', BoardSizeX, BoardSizeY, 0, 0, Sum5, ReturnValue).
+	
+%
 %	Get an Available Turn
 %
 
@@ -631,8 +697,6 @@ itbAvailableTurn(Board, PieceType, PieceOrientation, BoardSizeX, BoardSizeY, Cur
 	).
 
 getAnAvailableTurn(Board, BoardSizeX, BoardSizeY, RetX, RetY, RetType, RetOrientation) :-
-	writeln('[Logic] Checking for endgame condition...'),
-
 	(
 		(
 			itbAvailableTurn(Board, 1, 'v', BoardSizeX, BoardSizeY, 0, 0, RetX, RetY),
@@ -680,6 +744,166 @@ getAnAvailableTurn(Board, BoardSizeX, BoardSizeY, RetX, RetY, RetType, RetOrient
 			RetType is 3,
 			
 			unify_with_occurs_check(RetOrientation, 'h')
+		)
+	).
+
+%
+%	Get Available Turn at Index
+%
+
+gatAtIndex(_, _, _, _, SizeY, _, SizeY, Count, RetVal) :-
+	unify_with_occurs_check(Count, RetVal),
+
+	!.
+
+gatAtIndex(Board, PieceType, PieceOrientation, BoardSizeX, BoardSizeY, CurrentX, CurrentY, CurrentCount, RetVal) :-
+	(
+		(
+			validateTurnSilent(Board, PieceType, PieceOrientation, CurrentX, CurrentY),
+			NewCount is CurrentCount + 1
+		);
+
+		(
+			NewCount is CurrentCount
+		)
+
+	),
+
+	(
+		(	
+			CurrentX is BoardSizeX - 1,
+			not(CurrentY is BoardSizeY - 1),
+
+			NewX is 0,
+			NewY is CurrentY + 1,
+
+			cAvailableTurn(Board, PieceType, PieceOrientation, BoardSizeX, BoardSizeY, NewX, NewY, NewCount, RetVal)
+		);
+
+		%	End of everything...
+
+		(	
+			CurrentY is BoardSizeY - 1,
+			CurrentX is BoardSizeX - 1,
+
+			cAvailableTurn(_, _, _, _, BoardSizeY, _, BoardSizeY, NewCount, RetVal)
+		);
+
+		%	Normal case...
+
+		(	
+			not(CurrentX is BoardSizeX - 1),
+
+			NewX is CurrentX + 1,
+
+			cAvailableTurn(Board, PieceType, PieceOrientation, BoardSizeX, BoardSizeY, NewX, CurrentY, NewCount, RetVal)
+		)
+	).
+
+getAvailableTurnAtIndex(Board, BoardSizeX, BoardSizeY, Index, RetX, RetY, RetType, RetOrientation) :-
+	writeln('[Logic] Counting Available Turns...'),
+
+	(
+		cAvailableTurn(Board, 1, 'v', BoardSizeX, BoardSizeY, 0, 0, 0, Sum),
+		
+		(
+			(
+				Sum >= Index,
+				
+				itbAvailableTurn(Board, 1, 'v', BoardSizeX, BoardSizeY, 0, 0, RetX, RetY),
+				
+				RetType is 1,
+				
+				unify_with_occurs_check(RetOrientation, 'v')
+			);
+			
+			(
+				Index > Sum,
+				
+				cAvailableTurn(Board, 1, 'h', BoardSizeX, BoardSizeY, 0, 0, Sum, Sum2),
+				
+				(
+					(
+						Sum2 >= Index,
+						
+						itbAvailableTurn(Board, 1, 'h', BoardSizeX, BoardSizeY, 0, 0, RetX, RetY),
+						
+						RetType is 1,
+						
+						unify_with_occurs_check(RetOrientation, 'h')
+					);
+					
+					(
+						Index > Sum2,
+						
+						cAvailableTurn(Board, 2, 'v', BoardSizeX, BoardSizeY, 0, 0, Sum2, Sum3),
+						
+						(
+							(
+								Sum3 >= Index, 
+								
+								itbAvailableTurn(Board, 2, 'v', BoardSizeX, BoardSizeY, 0, 0, RetX, RetY),
+								
+								RetType is 2,
+								
+								unify_with_occurs_check(RetOrientation, 'v')
+							);
+							
+							(
+								Index > Sum3,
+								
+								cAvailableTurn(Board, 2, 'h', BoardSizeX, BoardSizeY, 0, 0, Sum3, Sum4),
+								
+								(
+									(
+										Sum4 >= Index,
+										
+										itbAvailableTurn(Board, 2, 'h', BoardSizeX, BoardSizeY, 0, 0, RetX, RetY),
+										
+										RetType is 2,
+										
+										unify_with_occurs_check(RetOrientation, 'h')
+									);
+									
+									(
+										Index > Sum4,
+										
+										cAvailableTurn(Board, 3, 'v', BoardSizeX, BoardSizeY, 0, 0, Sum4, Sum5),
+										
+										(
+											(
+												Sum5 >= Index,
+												
+												itbAvailableTurn(Board, 3, 'v', BoardSizeX, BoardSizeY, 0, 0, RetX, RetY),
+												
+												RetType is 3,
+												
+												unify_with_occurs_check(RetOrientation, 'v')
+											);
+											
+											(
+												Index > Sum5,
+												
+												cAvailableTurn(Board, 3, 'h', BoardSizeX, BoardSizeY, 0, 0, Sum5, ReturnValue),
+												
+												(
+													ReturnValue >= Index,
+													
+													itbAvailableTurn(Board, 3, 'h', BoardSizeX, BoardSizeY, 0, 0, RetX, RetY),
+													
+													RetType is 3,
+													
+													unify_with_occurs_check(RetOrientation, 'h')
+												)
+											)
+										)
+									)
+								)
+							)
+						)
+					)
+				)
+			)
 		)
 	).
 
@@ -854,9 +1078,13 @@ fillBoardWithScoring(Board, BoardSizeX, BoardSizeY, CurrentPosX, CurrentPosY, Pl
 %
 
 checkForWinner(_, _, BoardSizeY, _, BoardSizeY, Player1Points, Player2Points, Winner) :-
+	write('[Score] Player 1: '), writeln(Player1Points),
+	write('[Score] Player 2: '), writeln(Player2Points),
+	
 	(
 		(
 			Player1Points > Player2Points,
+			
 			unify_with_occurs_check(Winner, 1)
 		);
 		
@@ -953,7 +1181,7 @@ promptForCoordinates(Player, PieceX, PieceY, BoardSizeX, BoardSizeY) :-
 	PieceX >= 0,
 	BoardSizeX >= PieceX,
 	
-	write('Player '), write(Player), write(' please choose an Y coordinate: '),
+	write('Player '), write(Player), write(', please choose an Y coordinate: '),
 	readInteger(PieceY),
 	
 	PieceY >= 0,
@@ -993,7 +1221,7 @@ promptForPlay(Board, BoardSizeX, BoardSizeY, PlayCount, Player, NewBoard) :-
 	
 	promptForPlay(Board, BoardSizeX, BoardSizeY, PlayCount, Player, NewBoard).
 
-playComputerino(Board, BoardSizeX, BoardSizeY, PlayCount, _, NewBoard) :-
+playComputerino(Board, Difficulty, BoardSizeX, BoardSizeY, PlayCount, _, NewBoard) :-
 	(
 		PlayCount is 0,
 		
@@ -1003,9 +1231,29 @@ playComputerino(Board, BoardSizeX, BoardSizeY, PlayCount, _, NewBoard) :-
 	(
 		not(PlayCount is 0),
 		
-		getAnAvailableTurn(Board, BoardSizeX, BoardSizeY, RetX, RetY, RetType, RetOrientation),
-		
-		validateTurn(Board, RetType, RetOrientation, RetX, RetY, NewBoard)
+		(
+			(
+				Difficulty is 1,
+				
+				getAnAvailableTurn(Board, BoardSizeX, BoardSizeY, RetX, RetY, RetType, RetOrientation),
+				
+				validateTurn(Board, RetType, RetOrientation, RetX, RetY, NewBoard)
+			);
+			
+			(
+				Difficulty is 2,
+				
+				countAvailableTurns(Board, BoardSizeX, BoardSizeY, ATCount),
+				
+				Max is ATCount + 1,
+				
+				random(1, Max, OutputNumber),
+				
+				getAvailableTurnAtIndex(Board, BoardSizeX, BoardSizeY, OutputNumber, RetX, RetY, RetType, RetOrientation),
+				
+				validateTurn(Board, RetType, RetOrientation, RetX, RetY, NewBoard)
+			)
+		)
 	).
 	
 promptForBoardSize(BoardSizeX, BoardSizeY) :-
@@ -1024,8 +1272,29 @@ promptForBoardSize(BoardSizeX, BoardSizeY) :-
 	!.
 
 promptForBoardSize(BoardSizeX, BoardSizeY) :-
+	writeln('Unexpected values. Please retry.'),
+	
+	promptForBoardSize(BoardSizeX, BoardSizeY).
+
+promptForBoardSize(BoardSizeX, BoardSizeY) :-
 	write('Invalid size! Please try again.'),
 	promptForCoordinates(BoardSizeX, BoardSizeY).
+
+promptForComputerDifficulty(Difficulty) :-
+	write('Please choose the AI difficulty (1-2): '),
+	readInteger(Difficulty),
+	
+	(
+		Difficulty is 1;
+		Difficulty is 2
+	),
+	
+	!.
+
+promptForComputerDifficulty(Difficulty) :-
+	writeln('Invalid choice. Please try again.'),
+	
+	promptForComputerDifficulty(Difficulty).
 
 startGamePlayerVsPlayer :-
 	nl, writeln('Welcome to Le Bloq, Prolog Edition!'), nl,
@@ -1045,9 +1314,11 @@ startGamePlayerVsComputer :-
 	
 	promptForBoardSize(SizeX, SizeY),
 	
+	promptForComputerDifficulty(Difficulty),
+	
 	createBoard(SizeX, SizeY, X),
 	
-	runMainLoopPlayerVsAI(X, SizeX, SizeY, 0, 1, 2).
+	runMainLoopPlayerVsAI(X, Difficulty, SizeX, SizeY, 0, 1, 2).
 	
 startGameComputerVsComputer :-
 	nl, writeln('Welcome to Le Bloq, Prolog Edition!'), nl,
