@@ -17,7 +17,20 @@ printList([First|Others]) :-
 		);
 		
 		(
+			First is 4,
+			write('X')
+		);
+		
+		(
+			First is 5,
+			write('Y')
+		);
+		
+		(
 			not(First is 0),
+			not(First is 4),
+			not(First is 5),
+			
 			write(First)
 		)
 	),
